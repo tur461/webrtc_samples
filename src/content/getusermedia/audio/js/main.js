@@ -25,12 +25,12 @@ const constraints = window.constraints = {
   video: false
 };
 
-const setupRecognizer = s => {
-  console.log('recognizer setup..')
-  recognize.MediaRecorder = s;
+const setupRecognizer = track => {
+  console.log('recognizer setup, track_id:', track.id)
+  recognize.MediaRecorder = track;
   recognize.lang = 'en-US'
-  recognize.interimResults = false;
-  recognize.maxAlternatives = 1;
+  recognize.interimResults = true;
+  // recognize.maxAlternatives = 1;
   recognize.continuous = true;
 
   recognize.onresult = e => {
@@ -38,18 +38,27 @@ const setupRecognizer = s => {
       // if(transcript.toLowerCase().includes("that's all.")) {
 
       // }
-      console.log('transcript:', transcript)
-      insertText(transcript)
+      var interimTranscript = '';
+      var finalTranscript = '';
+      for (var i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) {
+              finalTranscript += e.results[i][0].transcript;
+              insertCompleted(e.results[i][0].transcript)
+              insertConfidence(e.results[i][0].confidence)
+          } else {
+              interimTranscript += e.results[i][0].transcript;
+              insertIntermediate(interimTranscript);
+          }
+      }
+      console.log('final transcript:', finalTranscript)
   }
 
   recognize.onend = e => {
-      console.log('on end..', e)
-      if(!recognize.manualStop) {
-          setTimeout(_ => {
-              recognize.start()
-              console.log('[100ms] recognizer restarted..')
-          }, 100)
-      }
+      console.log('recognition ends..')
+  }
+
+  recognize.onstart = e => {
+      console.log('recognition starts..')
   }
 }
 
@@ -61,13 +70,19 @@ const recStop = _ => {
   recognize.stop()
 }
 
-const insertText = t => {
-  document.getElementById('text_target').textContent = t;
+const insertCompleted = t => {
+  document.getElementById('text_target_comp').textContent = t;
+}
+const insertIntermediate = t => {
+  document.getElementById('text_target_int').textContent = t;
+}
+const insertConfidence = t => {
+  document.getElementById('text_target_conf').textContent = t;
 }
 
 function handleSuccess(stream) {
-  setupRecognizer(stream)
   const audioTracks = stream.getAudioTracks();
+  setupRecognizer(audioTracks[0])
   console.log('Got stream with constraints:', constraints);
   console.log('Using audio device: ' + audioTracks[0].label);
   stream.oninactive = function() {
