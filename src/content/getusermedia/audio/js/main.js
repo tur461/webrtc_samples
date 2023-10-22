@@ -8,6 +8,7 @@
 
 'use strict';
 
+
 // Put variables in global scope to make them available to the browser console.
 const audio = document.querySelector('audio');
 
@@ -17,7 +18,7 @@ var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEv
 
 var recognize = new SpeechRecognition();
 
-
+console.log('recognizer:', recognize)
 
 const constraints = window.constraints = {
   audio: true,
@@ -25,7 +26,7 @@ const constraints = window.constraints = {
 };
 
 const setupRecognizer = s => {
-  console.log('recognizer setup..', recognize)
+  console.log('recognizer setup..')
   recognize.MediaRecorder = s;
   recognize.lang = 'en-US'
   recognize.interimResults = false;
@@ -52,11 +53,11 @@ const setupRecognizer = s => {
   }
 }
 
-const recStart = async _ => {
+const recStart = _ => {
   recognize.start()
 }
 
-const recStop = async _ => {
+const recStop = _ => {
   recognize.stop()
 }
 
@@ -83,5 +84,8 @@ function handleError(error) {
   document.getElementById('errorMsg').innerText = errorMessage;
   console.log(errorMessage);
 }
+
+document.getElementById('stop_recognizer').addEventListener('click', recStop);
+document.getElementById('start_recognizer').addEventListener('click', recStart);
 
 navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
