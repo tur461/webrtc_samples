@@ -11,10 +11,58 @@
 // Put variables in global scope to make them available to the browser console.
 const audio = document.querySelector('audio');
 
+var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+var SpeechGrammarList = SpeechGrammarList || window.webkitSpeechGrammarList
+var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+
+var recognize = new SpeechRecognition();
+
+
+
 const constraints = window.constraints = {
   audio: true,
   video: false
 };
+
+const setupRecognizer = s => {
+  console.log('recognizer setup..', recognize)
+  recognize.MediaRecorder = s;
+  recognize.lang = 'en-US'
+  recognize.interimResults = false;
+  recognize.maxAlternatives = 1;
+  recognize.continuous = true;
+
+  recognize.onresult = e => {
+      const transcript = e.results[e.results.length - 1][0].transcript;
+      // if(transcript.toLowerCase().includes("that's all.")) {
+
+      // }
+      console.log('transcript:', transcript)
+      insertText(transcript)
+  }
+
+  recognize.onend = e => {
+      console.log('on end..', e)
+      if(!recognize.manualStop) {
+          setTimeout(_ => {
+              recognize.start()
+              console.log('[100ms] recognizer restarted..')
+          }, 100)
+      }
+  }
+}
+
+const recStart = async _ => {
+  recognize.start()
+}
+
+const recStop = async _ => {
+  recognize.stop()
+}
+
+const insertText = t => {
+  document.getElementById('text_target').textContent = t;
+}
 
 function handleSuccess(stream) {
   const audioTracks = stream.getAudioTracks();
@@ -25,6 +73,9 @@ function handleSuccess(stream) {
   };
   window.stream = stream; // make variable available to browser console
   audio.srcObject = stream;
+
+
+
 }
 
 function handleError(error) {
