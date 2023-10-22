@@ -50,17 +50,18 @@
     <a href="https://github.com/webrtc/samples/tree/gh-pages/src/content/getusermedia/audio"
        title="View source for this page on GitHub" id="viewSource">View source on GitHub</a>
 
+    <div>
+        <button id="start_recognizer">start</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button id="stop_recognizer">stop</button>
+    </div>
+    <div>   
+        <h2>Transcription</h2>
+        <p id="text_target"></p>
+    </div>
 </div>
 
-<div>
-    <button id="start_recognizer">start</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <button id="stop_recognizer">stop</button>
-</div>
 
-<div>
-    <h2>Transcription</h2>
-    <p id="text_target"></p>
-</div>
 
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script src="js/main.js"></script>
