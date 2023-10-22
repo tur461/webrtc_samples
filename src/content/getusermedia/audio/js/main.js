@@ -18,6 +18,8 @@ var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEv
 
 var recognize = new SpeechRecognition();
 
+var colors = [ 'aqua' , 'azure' , 'beige', 'bisque', 'black', 'blue', 'brown', 'chocolate', 'coral', 'crimson', 'cyan', 'fuchsia', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'indigo', 'ivory', 'khaki', 'lavender', 'lime', 'linen', 'magenta', 'maroon', 'moccasin', 'navy', 'olive', 'orange', 'orchid', 'peru', 'pink', 'plum', 'purple', 'red', 'salmon', 'sienna', 'silver', 'snow', 'tan', 'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'white', 'yellow'];
+
 console.log('recognizer:', recognize)
 
 const constraints = window.constraints = {
@@ -26,15 +28,25 @@ const constraints = window.constraints = {
 };
 
 const setupRecognizer = track => {
+  if (SpeechGrammarList) {
+    // SpeechGrammarList is not currently available in Safari, and does not have any effect in any other browser.
+    // This code is provided as a demonstration of possible capability. You may choose not to use it.
+    var speechRecognitionList = new SpeechGrammarList();
+    var grammar = '#JSGF V1.0; grammar colors; public <color> = ' + colors.join(' | ') + ' ;'
+    speechRecognitionList.addFromString(grammar, 1);
+    recognition.grammars = speechRecognitionList;
+  }
+
   console.log('recognizer setup, track_id:', track.id)
   recognize.MediaRecorder = track;
   recognize.lang = 'en-US'
   recognize.interimResults = true;
-  // recognize.maxAlternatives = 1;
-  recognize.continuous = true;
+  recognize.maxAlternatives = 1;
+  recognize.continuous = false;
 
   recognize.onresult = e => {
-      const transcript = e.results[e.results.length - 1][0].transcript;
+    console.log('you said: ', e.results[0][0].transcript);
+      // const transcript = e.results[e.results.length - 1][0].transcript;
       // if(transcript.toLowerCase().includes("that's all.")) {
 
       // }
@@ -60,6 +72,11 @@ const setupRecognizer = track => {
   recognize.onstart = e => {
       console.log('recognition starts..')
   }
+  recognize.onspeechend = _ => recognize.stop();
+
+  recognize.onnomatch = _ => console.log("sorry! couldn't recognize.")
+
+  recognize.onerror = e => console.log('[ERR] recognize error: ', e.error)
 }
 
 const recStart = _ => {
@@ -90,9 +107,6 @@ function handleSuccess(stream) {
   };
   window.stream = stream; // make variable available to browser console
   audio.srcObject = stream;
-
-
-
 }
 
 function handleError(error) {
