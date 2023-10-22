@@ -28,16 +28,17 @@ const constraints = window.constraints = {
 };
 
 const setupRecognizer = track => {
+  console.log('recognizer setup, track_id:', track.id)
   if (SpeechGrammarList) {
     // SpeechGrammarList is not currently available in Safari, and does not have any effect in any other browser.
     // This code is provided as a demonstration of possible capability. You may choose not to use it.
     var speechRecognitionList = new SpeechGrammarList();
     var grammar = '#JSGF V1.0; grammar colors; public <color> = ' + colors.join(' | ') + ' ;'
     speechRecognitionList.addFromString(grammar, 1);
-    recognition.grammars = speechRecognitionList;
+    recognize.grammars = speechRecognitionList;
   }
 
-  console.log('recognizer setup, track_id:', track.id)
+  
   recognize.MediaRecorder = track;
   recognize.lang = 'en-US'
   recognize.interimResults = true;
