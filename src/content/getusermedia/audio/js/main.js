@@ -99,6 +99,7 @@ const insertConfidence = t => {
 }
 
 function handleSuccess(stream) {
+  console.log('media success!!')
   const audioTracks = stream.getAudioTracks();
   setupRecognizer(audioTracks[0])
   console.log('Got stream with constraints:', constraints);
@@ -111,6 +112,7 @@ function handleSuccess(stream) {
 }
 
 function handleError(error) {
+  console.log('media error!!', error)
   const errorMessage = 'navigator.MediaDevices.getUserMedia error: ' + error.message + ' ' + error.name;
   document.getElementById('errorMsg').innerText = errorMessage;
   console.log(errorMessage);
