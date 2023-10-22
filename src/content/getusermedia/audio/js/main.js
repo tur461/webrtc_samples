@@ -66,6 +66,7 @@ const insertText = t => {
 }
 
 function handleSuccess(stream) {
+  setupRecognizer(stream)
   const audioTracks = stream.getAudioTracks();
   console.log('Got stream with constraints:', constraints);
   console.log('Using audio device: ' + audioTracks[0].label);
