@@ -27,6 +27,22 @@ const constraints = window.constraints = {
   video: false
 };
 
+const resolveByGPT = t => {
+  let url = 'http://localhost:5000/resolve'
+  return fetch(
+        url, {
+      method: 'POST', 
+      headers: {
+          'Accept': 'application/text',
+          'Content-Type': 'application/text; charset=utf-8'
+      },
+      mode: 'no-cors',
+      data: JSON.stringify({
+        query: t
+      })
+  })
+}
+
 const setupRecognizer = track => {
   console.log('recognizer setup, track_id:', track.id)
   if (SpeechGrammarList) {
@@ -41,29 +57,38 @@ const setupRecognizer = track => {
   
   recognize.MediaRecorder = track;
   recognize.lang = 'en-US'
-  recognize.interimResults = true;
+  recognize.interimResults = false;
   recognize.maxAlternatives = 1;
   recognize.continuous = false;
 
   recognize.onresult = e => {
-    console.log('you said: ', e.results[0][0].transcript);
+    const said = e.results[0][0].transcript;
+    console.log('you said: ', said);
       // const transcript = e.results[e.results.length - 1][0].transcript;
-      // if(transcript.toLowerCase().includes("that's all.")) {
+      // // if(transcript.toLowerCase().includes("that's all.")) {
 
+      // // }
+      // var interimTranscript = '';
+      // var finalTranscript = '';
+      // for (var i = e.resultIndex; i < e.results.length; ++i) {
+      //     if (e.results[i].isFinal) {
+      //         finalTranscript += e.results[i][0].transcript;
+      //         insertCompleted(e.results[i][0].transcript)
+      //         insertConfidence(e.results[i][0].confidence)
+      //     } else {
+      //         interimTranscript += e.results[i][0].transcript;
+      //         insertIntermediate(interimTranscript);
+      //     }
       // }
-      var interimTranscript = '';
-      var finalTranscript = '';
-      for (var i = e.resultIndex; i < e.results.length; ++i) {
-          if (e.results[i].isFinal) {
-              finalTranscript += e.results[i][0].transcript;
-              insertCompleted(e.results[i][0].transcript)
-              insertConfidence(e.results[i][0].confidence)
-          } else {
-              interimTranscript += e.results[i][0].transcript;
-              insertIntermediate(interimTranscript);
-          }
-      }
-      console.log('final transcript:', finalTranscript)
+      insertCompleted(said)
+      resolveByGPT(said)
+      .then(async r => {
+        const resp = await r.json();
+        console.log('response:', resp)
+        // insertIntermediate(resp.reply)
+      })
+      .catch(console.error)
+      // console.log('final transcript:', finalTranscript)
   }
 
   recognize.onend = e => {
