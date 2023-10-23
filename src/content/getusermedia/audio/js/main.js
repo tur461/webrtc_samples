@@ -8,7 +8,7 @@
 
 'use strict';
 
-console.log('ver 1.1')
+console.log('ver 1.2')
 
 // Put variables in global scope to make them available to the browser console.
 const audio = document.querySelector('audio');
@@ -37,7 +37,7 @@ const resolveByGPT = t => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       },
-      mode: 'no-cors',
+      mode: 'cors',
       body: JSON.stringify({
         query: t
       })
