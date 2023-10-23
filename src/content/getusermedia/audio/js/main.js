@@ -8,7 +8,7 @@
 
 'use strict';
 
-console.log('ver 1.3')
+console.log('ver 1.4')
 
 // Put variables in global scope to make them available to the browser console.
 const audio = document.querySelector('audio');
@@ -71,7 +71,7 @@ const setupRecognizer = track => {
     .then(async r => {
       const resp = await r.json();
       console.log('response:', resp)
-      insertTextReplied(resp?.reply)
+      insertTextReplied(atob(resp?.reply))
 
     })
     .catch(console.error)
