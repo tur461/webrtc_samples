@@ -13,12 +13,12 @@
 const audio = document.querySelector('audio');
 
 var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
-var SpeechGrammarList = SpeechGrammarList || window.webkitSpeechGrammarList
-var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+// var SpeechGrammarList = SpeechGrammarList || window.webkitSpeechGrammarList
+// var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
 
 var recognize = new SpeechRecognition();
 
-var colors = [ 'aqua' , 'azure' , 'beige', 'bisque', 'black', 'blue', 'brown', 'chocolate', 'coral', 'crimson', 'cyan', 'fuchsia', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'indigo', 'ivory', 'khaki', 'lavender', 'lime', 'linen', 'magenta', 'maroon', 'moccasin', 'navy', 'olive', 'orange', 'orchid', 'peru', 'pink', 'plum', 'purple', 'red', 'salmon', 'sienna', 'silver', 'snow', 'tan', 'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'white', 'yellow'];
+// var colors = [ 'aqua' , 'azure' , 'beige', 'bisque', 'black', 'blue', 'brown', 'chocolate', 'coral', 'crimson', 'cyan', 'fuchsia', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'indigo', 'ivory', 'khaki', 'lavender', 'lime', 'linen', 'magenta', 'maroon', 'moccasin', 'navy', 'olive', 'orange', 'orchid', 'peru', 'pink', 'plum', 'purple', 'red', 'salmon', 'sienna', 'silver', 'snow', 'tan', 'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'white', 'yellow'];
 
 console.log('recognizer:', recognize)
 
@@ -28,7 +28,7 @@ const constraints = window.constraints = {
 };
 
 const resolveByGPT = t => {
-  let url = 'http://localhost:5000/resolve'
+  let url = 'https://bc2e-27-63-21-108.ngrok-free.app/resolve'
   return fetch(
         url, {
       method: 'POST', 
@@ -45,14 +45,14 @@ const resolveByGPT = t => {
 
 const setupRecognizer = track => {
   console.log('recognizer setup, track_id:', track.id)
-  if (SpeechGrammarList) {
-    // SpeechGrammarList is not currently available in Safari, and does not have any effect in any other browser.
-    // This code is provided as a demonstration of possible capability. You may choose not to use it.
-    var speechRecognitionList = new SpeechGrammarList();
-    var grammar = '#JSGF V1.0; grammar colors; public <color> = ' + colors.join(' | ') + ' ;'
-    speechRecognitionList.addFromString(grammar, 1);
-    recognize.grammars = speechRecognitionList;
-  }
+  // if (SpeechGrammarList) {
+  //   // SpeechGrammarList is not currently available in Safari, and does not have any effect in any other browser.
+  //   // This code is provided as a demonstration of possible capability. You may choose not to use it.
+  //   var speechRecognitionList = new SpeechGrammarList();
+  //   var grammar = '#JSGF V1.0; grammar colors; public <color> = ' + colors.join(' | ') + ' ;'
+  //   speechRecognitionList.addFromString(grammar, 1);
+  //   recognize.grammars = speechRecognitionList;
+  // }
 
   
   recognize.MediaRecorder = track;
@@ -63,32 +63,17 @@ const setupRecognizer = track => {
 
   recognize.onresult = e => {
     const said = e.results[0][0].transcript;
-    console.log('you said: ', said);
-      // const transcript = e.results[e.results.length - 1][0].transcript;
-      // // if(transcript.toLowerCase().includes("that's all.")) {
+    recognize.stop()
+    insertTextSaid(said)
+    
+    resolveByGPT(said)
+    .then(async r => {
+      const resp = await r.json();
+      console.log('response:', resp)
+      insertTextReplied('check console!')
 
-      // // }
-      // var interimTranscript = '';
-      // var finalTranscript = '';
-      // for (var i = e.resultIndex; i < e.results.length; ++i) {
-      //     if (e.results[i].isFinal) {
-      //         finalTranscript += e.results[i][0].transcript;
-      //         insertCompleted(e.results[i][0].transcript)
-      //         insertConfidence(e.results[i][0].confidence)
-      //     } else {
-      //         interimTranscript += e.results[i][0].transcript;
-      //         insertIntermediate(interimTranscript);
-      //     }
-      // }
-      insertCompleted(said)
-      resolveByGPT(said)
-      .then(async r => {
-        const resp = await r.json();
-        console.log('response:', resp)
-        // insertIntermediate(resp.reply)
-      })
-      .catch(console.error)
-      // console.log('final transcript:', finalTranscript)
+    })
+    .catch(console.error)
   }
 
   recognize.onend = e => {
@@ -113,14 +98,11 @@ const recStop = _ => {
   recognize.stop()
 }
 
-const insertCompleted = t => {
-  document.getElementById('text_target_comp').textContent = t;
+const insertTextSaid = t => {
+  document.getElementById('text_said').textContent = t;
 }
-const insertIntermediate = t => {
-  document.getElementById('text_target_int').textContent = t;
-}
-const insertConfidence = t => {
-  document.getElementById('text_target_conf').textContent = t;
+const insertTextReplied = t => {
+  document.getElementById('text_replied').textContent = t;
 }
 
 function handleSuccess(stream) {
