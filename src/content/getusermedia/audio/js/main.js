@@ -33,8 +33,8 @@ const resolveByGPT = t => {
         url, {
       method: 'POST', 
       headers: {
-          'Accept': 'application/text',
-          'Content-Type': 'application/text; charset=utf-8'
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
       },
       mode: 'no-cors',
       data: JSON.stringify({
