@@ -71,7 +71,7 @@ const setupRecognizer = track => {
     .then(async r => {
       const resp = await r.json();
       console.log('response:', resp)
-      insertTextReplied('check console!')
+      insertTextReplied(resp?.reply)
 
     })
     .catch(console.error)
